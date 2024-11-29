@@ -1,52 +1,53 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ProjectCard from "./ProjectCards";
 import Particle from "../Particle";
-import editor from "../../Assets/Projects/codeEditor.png";
-import chatify from "../../Assets/Projects/chatify.png";
-import bitsOfCode from "../../Assets/Projects/blog.png";
 
 function Projects() {
+  const [projects, setProjects] = useState([]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("https://amazon-24ttl-6a495dfd71bd.herokuapp.com/api/portfolio");
+      if (!response.ok) {
+        throw new Error("Failed to fetch projects");
+      }
+      const data = await response.json();
+      setProjects(data.items);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   return (
-    <Container fluid className="project-section">
-      <Particle />
-      <Container>
-        <h1 className="project-heading">
-          My Recent <strong className="purple">Works </strong>
-        </h1>
-        <p style={{ color: "white" }}>
-          Here are a few projects I've worked on recently.
-        </p>
-        <Row style={{ justifyContent: "center", paddingBottom: "10px" }}>
-          <Col md={4} className="project-card">
-            <ProjectCard
-              imgPath={chatify}
-              isBlog={false}
-              title="24Steam"
-              description="Boost your conversion by fast and effortless distributing of enhanced content across various retail Ecommerce platforms"
-            />
-          </Col>
-
-          <Col md={4} className="project-card">
-            <ProjectCard
-              imgPath={bitsOfCode}
-              isBlog={false}
-              title="EstiRoom"
-              description="Blueprint creation, automatic estimation calculation, selection of materials and tasks for stretch ceilings and construction."
-            />
-          </Col>
-
-          <Col md={4} className="project-card">
-            <ProjectCard
-              imgPath={editor}
-              isBlog={false}
-              title="Otp Bank"
-              description="Retail banking and other offers on favorable terms from JSC OTP Bank"
-            />
-          </Col>
-        </Row>
+      <Container fluid className="project-section">
+        <Particle />
+        <Container>
+          <h1 className="project-heading">
+            My Recent <strong className="purple">Works </strong>
+          </h1>
+          <p style={{ color: "white" }}>
+            Here are a few projects I've worked on recently.
+          </p>
+          <Row style={{ justifyContent: "center", paddingBottom: "10px" }}>
+            {projects.map((project, index) => (
+                <Col md={4} className="project-card" key={index}>
+                  <ProjectCard
+                      imgPath={project.image.url}
+                      isBlog={false}
+                      title={project.title}
+                      url={project.link}
+                      description={project.text}
+                  />
+                </Col>
+            ))}
+          </Row>
+        </Container>
       </Container>
-    </Container>
   );
 }
 
